@@ -1,4 +1,4 @@
-Teşekkürler @emre-oztemiz-ai-ml
+Teşekkürler @emreoztemiz-ai-ml
 
 <!---
 antalya-arac-servisi/antalya-arac-servisi is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
