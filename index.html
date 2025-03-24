@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- SEO Ayarları -->
-    <title>Car Servis Antalya | Profesyonel Oto Tamir & Bakım Hizmetleri</title>
-    <meta name="description" content="Antalya'nın lider oto servisi. Periyodik bakım, motor tamiri, yağ değişimi ve tüm araç bakım hizmetleri. Uzman ekip, modern ekipmanlar ve uygun fiyatlar.">
-    <meta name="keywords" content="Antalya oto tamir, araç bakım, motor tamiri, yağ değişimi, periyodik bakım, car servis">
+    <title>Car Servis Antalya | Profesyonel Oto Tamir Hizmetleri</title>
+    <meta name="description" content="Antalya'nın lider oto servisi. Uzman ekip, modern ekipmanlar ve uygun fiyatlarla tüm araç bakım hizmetleri.">
+    <meta name="keywords" content="Antalya oto tamir, araç bakım, motor tamiri, yağ değişimi, periyodik bakım">
     <meta name="author" content="Car Servis">
 
     <!-- Stil Dosyası -->
@@ -26,16 +26,6 @@
 
         #video-container {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            z-index: 0;
-        }
-
-        #video-bg {
-            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -43,7 +33,19 @@
             min-height: 100%;
             width: auto;
             height: auto;
-            object-fit: cover;
+            z-index: 0;
+        }
+
+        .video-iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 56.25vw; /* 16:9 aspect ratio */
+            min-height: 100vh;
+            min-width: 177.77vh;
+            border: none;
         }
 
         #enter-button {
@@ -84,31 +86,11 @@
             cursor: pointer;
             z-index: 100;
             font-size: 16px;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         #skip-button:hover {
             background: rgba(255, 0, 60, 0.8);
-        }
-
-        .loader {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #ff003c;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            z-index: 1000;
-            display: none;
-        }
-
-        @keyframes spin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
         @media (max-width: 768px) {
@@ -117,7 +99,7 @@
                 padding: 15px 30px;
             }
             
-            #video-bg {
+            .video-iframe {
                 width: 300%;
                 left: 50%;
             }
@@ -125,17 +107,17 @@
     </style>
 </head>
 <body>
-    <!-- Yükleme Animasyonu -->
-    <div class="loader" id="loader"></div>
-
     <!-- Video Konteynırı -->
     <div id="video-container">
-        <video autoplay muted playsinline id="video-bg" poster="video-poster.jpg">
-            <!-- Videoyu kendi URL'nizle değiştirin -->
-            <source src="https://drive.google.com/file/d/1vQiVtczmeVWNRuAv8oPfI0upzHLumvIc/preview" type="video/mp4">
-            <source src="https://drive.google.com/file/d/1vQiVtczmeVWNRuAv8oPfI0upzHLumvIc/preview" type="video/webm">
-            Tarayıcınız video desteği sağlamıyor.
-        </video>
+        <!-- YouTube Video Embed -->
+        <iframe class="video-iframe" 
+                src="https://www.youtube.com/embed/r-xA9W34NOs?autoplay=1&mute=1&start=10&controls=0&loop=1&playlist=r-xA9W34NOs&modestbranding=1&rel=0&enablejsapi=1" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+                loading="eager"
+                poster="https://img.youtube.com/vi/r-xA9W34NOs/maxresdefault.jpg">
+        </iframe>
     </div>
 
     <!-- Siteye Giriş Butonu -->
@@ -147,35 +129,35 @@
     <!-- Scriptler -->
     <script>
         // Elementleri seç
-        const loader = document.getElementById('loader');
-        const video = document.getElementById('video-bg');
+        const videoIframe = document.querySelector('.video-iframe');
         const enterButton = document.getElementById('enter-button');
         const skipButton = document.getElementById('skip-button');
 
-        // Yükleme animasyonunu başlat
-        loader.style.display = 'block';
-
-        // Video yüklendiğinde
-        video.addEventListener('loadeddata', () => {
-            loader.style.display = 'none';
-            video.play().catch(error => {
-                console.log('Video oynatma hatası:', error);
-                showButton();
+        // YouTube Player API
+        let player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player(videoIframe, {
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
             });
-        });
+        }
 
-        // Video hata kontrolü
-        video.addEventListener('error', () => {
-            loader.style.display = 'none';
-            showButton();
-        });
+        function onPlayerReady(event) {
+            event.target.playVideo();
+            event.target.seekTo(10); // 10. saniyeden başlat
+        }
 
-        // Video sonunda
-        video.addEventListener('ended', showButton);
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                showButton();
+            }
+        }
 
         // Atla butonu
         skipButton.addEventListener('click', () => {
-            video.pause();
+            player.stopVideo();
             showButton();
         });
 
@@ -184,17 +166,16 @@
             skipButton.style.display = 'none';
         }
 
-        // Giriş butonu URL'sini ayarla (Kendi URL'nizle değiştirin)
+        // Giriş butonu URL'sini ayarla
         enterButton.href = "https://antalya-arac-servisi.github.io/yag-bakimi-periyodik-bakim";
 
-        // Mobile dokunma kontrolü
-        let touched = false;
-        document.addEventListener('touchstart', () => {
-            if(!touched) {
-                video.play();
-                touched = true;
-            }
-        }, {once: true});
+        // YouTube API Scriptini yükle
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
     </script>
 </body>
 </html>
+
+
