@@ -9,9 +9,7 @@
     <meta name="description" content="Antalya'nın lider oto servisi. Periyodik bakım, motor tamiri, yağ değişimi ve tüm araç bakım hizmetleri. Uzman ekip, modern ekipmanlar ve uygun fiyatlar.">
     <meta name="keywords" content="Antalya oto tamir, araç bakım, motor tamiri, yağ değişimi, periyodik bakım, car servis">
     <meta name="author" content="Car Servis">
-<script>
-  window.location.replace(window.location.href.split('#')[0]);
-</script>
+
     <!-- Stil Dosyası -->
     <style>
         * {
@@ -23,10 +21,21 @@
         body {
             font-family: 'Arial', sans-serif;
             overflow: hidden;
+            background: #000;
         }
 
         #video-container {
             position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        #video-bg {
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -34,13 +43,7 @@
             min-height: 100%;
             width: auto;
             height: auto;
-            z-index: -1;
-        }
-
-        #video-bg {
             object-fit: cover;
-            width: 100%;
-            height: 100%;
         }
 
         #enter-button {
@@ -50,16 +53,18 @@
             transform: translate(-50%, -50%);
             padding: 20px 40px;
             font-size: 24px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             border: 3px solid #ff003c;
             border-radius: 50px;
             cursor: pointer;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.5s ease;
+            transition: opacity 0.5s ease;
             text-decoration: none;
             color: #333;
             font-weight: bold;
+            z-index: 2;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         #enter-button.show {
@@ -71,13 +76,39 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            padding: 10px 20px;
-            background: rgba(0, 0, 0, 0.7);
+            padding: 12px 25px;
+            background: rgba(0, 0, 0, 0.8);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 30px;
             cursor: pointer;
             z-index: 100;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        #skip-button:hover {
+            background: rgba(255, 0, 60, 0.8);
+        }
+
+        .loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #ff003c;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 1000;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
         @media (max-width: 768px) {
@@ -85,13 +116,21 @@
                 font-size: 18px;
                 padding: 15px 30px;
             }
+            
+            #video-bg {
+                width: 300%;
+                left: 50%;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Yükleme Animasyonu -->
+    <div class="loader" id="loader"></div>
+
     <!-- Video Konteynırı -->
     <div id="video-container">
-        <video autoplay muted playsinline id="video-bg" poster="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAABsCAYAAACrf9gNAAAAAXNSR0IArs4c6QAAAM9JREFUKFNNx2lHAwAAgOG1lS5dtkqXjqmm1dTKOnTpstokMpEkJpEkkkgSSSSJJJJEJtKPnOfb3g8PbyBQWpkJIoRyVKASVahGDWpRh3o0oBFNCCOCZrSgFW1oRwc60YVu9KAXfYiiHwMYRAxDiGMYI0hgFGNIYhwTSGESU5jGDGYxh3ksYBFLWMYKVrGGNNaxgQyy2MQWtpHDDnaxh30cII9DHOEYJzjFGc5xgUtc4Ro3uMUd7vGARzzhGS94xRve8YFPfOEbPyjgF3/4LwITgx4jvzT3tAAAAABJRU5ErkJggg==">
+        <video autoplay muted playsinline id="video-bg" poster="video-poster.jpg">
             <!-- Videoyu kendi URL'nizle değiştirin -->
             <source src="https://www.blogger.com/video.g?token=AD6v5dzCWjeFG9AmPxcMBaW4Fg8yYpALt8tw_OylCQ_kJLN8aM9xhVvwkbybARYy5LpU0LznYkJEUZUoWcujUdunwkPcpp-8B7n1iVmHdtDoicVzGPTMhPHNIgLUS67q-Mg3YUquCWU" type="video/mp4">
             <source src="background-video.webm" type="video/webm">
@@ -100,37 +139,62 @@
     </div>
 
     <!-- Siteye Giriş Butonu -->
-    <a href="ANA-SAYFA-URL" id="enter-button">SİTEYE GİRİŞ</a>
+    <a href="https://antalya-arac-servisi.github.io/yag-bakimi-periyodik-bakim" id="enter-button">SİTEYE GİRİŞ</a>
 
     <!-- Video Atla Butonu -->
     <button id="skip-button">Videoyu Atla</button>
 
     <!-- Scriptler -->
     <script>
-        // Giriş butonu URL'sini ayarla (Kendi URL'nizle değiştirin)
-        document.getElementById('enter-button').href = "https://antalya-arac-servisi.github.io/yag-bakimi-periyodik-bakim";
-
-        // Video ve buton kontrolü
+        // Elementleri seç
+        const loader = document.getElementById('loader');
         const video = document.getElementById('video-bg');
         const enterButton = document.getElementById('enter-button');
         const skipButton = document.getElementById('skip-button');
 
-        // Video sonunda butonu göster
-        video.addEventListener('ended', () => {
-            enterButton.classList.add('show');
+        // Yükleme animasyonunu başlat
+        loader.style.display = 'block';
+
+        // Video yüklendiğinde
+        video.addEventListener('loadeddata', () => {
+            loader.style.display = 'none';
+            video.play().catch(error => {
+                console.log('Video oynatma hatası:', error);
+                showButton();
+            });
         });
 
-        // Atla butonu işlevi
+        // Video hata kontrolü
+        video.addEventListener('error', () => {
+            loader.style.display = 'none';
+            showButton();
+        });
+
+        // Video sonunda
+        video.addEventListener('ended', showButton);
+
+        // Atla butonu
         skipButton.addEventListener('click', () => {
             video.pause();
-            enterButton.classList.add('show');
+            showButton();
         });
 
-        // Video tıklama ile duraklatma
-        video.addEventListener('click', () => {
-            video.pause();
+        function showButton() {
             enterButton.classList.add('show');
-        });
+            skipButton.style.display = 'none';
+        }
+
+        // Giriş butonu URL'sini ayarla (Kendi URL'nizle değiştirin)
+        enterButton.href = "https://antalya-arac-servisi.github.io/yag-bakimi-periyodik-bakim";
+
+        // Mobile dokunma kontrolü
+        let touched = false;
+        document.addEventListener('touchstart', () => {
+            if(!touched) {
+                video.play();
+                touched = true;
+            }
+        }, {once: true});
     </script>
 </body>
 </html>
