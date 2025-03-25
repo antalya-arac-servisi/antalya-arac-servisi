@@ -1,293 +1,262 @@
 <!DOCTYPE html>
-<html lang="tr">
+
+<html lang="tr" prefix="og: http://ogp.me/ns#">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="google-site-verification" content="3jONfVEQanNRVwlKdo6T9T-SrAasHRJqgENnTwACVrs" />
-    <!-- SEO Optimizasyon -->
-    <title>Car Servis Antalya | Profesyonel Oto Tamir Hizmetleri</title>
-    <meta name="description" content="Antalya'nın 1 numaralı oto servisi. Uzman ekip, modern ekipmanlar ve uygun fiyat garantisi! Hemen randevu alın.">
-    <meta name="keywords" content="Antalya oto tamir, araç bakım, motor tamiri, yağ değişimi, periyodik bakım">
-    <link rel="canonical" href="https://antalya-arac-servisi.github.io/antalya-arac-servisi">
+
+    <title>Car Servis - Antalya'nın En Profesyonel Araç Bakım Merkezi</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="Antalya'da yağ bakımı, araç tamiri, bilgisayarlı arıza tespiti ve gece tamir hizmetleri. Kepez, Muratpaşa, Konyaaltı, Döşemealtı ve tüm Antalya ilçelerinde hizmet.">
+
+    <meta name="keywords" content="araç bakım, yağ değişimi, motor tamiri, bilgisayarlı arıza tespiti, gece tamir, Antalya araç servisi, Kepez, Muratpaşa, Konyaaltı, Döşemealtı">
+
+    <link rel="canonical" href="https://antalya-arac-servisi.github.io/antalya-arac-servisi/">
+
+    <meta name="robots" content="index, follow">
+
+    
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        /* Temel Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #000;
-            overflow: hidden;
-            touch-action: manipulation;
-        }
+        body { 
 
-        /* Video Konteynırı */
-        #video-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 0;
-        }
+            font-family: 'Arial', sans-serif; 
 
-        .video-iframe {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 177.78vh; /* 16:9 Oran Koruma */
-            height: 100vh;
-            min-width: 100%;
-            min-height: 100%;
-            border: none;
-        }
+            margin: 0; 
 
-        /* Mobil Dikey Mod */
-        @media (max-aspect-ratio: 16/9) {
-            .video-iframe {
-                width: 100%;
-                height: 56.25vw;
-            }
-        }
+            padding: 0; 
 
-        /* Kontroller */
-        #controls {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 100;
-        }
+            line-height: 1.6; 
 
-        .control-btn {
-            padding: 12px 24px;
-            background: rgba(0, 0, 0, 0.85);
-            color: #fff;
-            border: 2px solid #ff003c;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-        }
-
-        .control-btn:hover {
-            background: rgba(255, 0, 60, 0.9);
-        }
-
-        /* Giriş Butonu */
-        #enter-button {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 18px 36px;
-            font-size: 1.4em;
-            background: rgba(255, 255, 255, 0.95);
-            border: 3px solid #ff003c;
-            border-radius: 40px;
-            cursor: pointer;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.5s ease;
-            text-decoration: none;
             color: #333;
-            font-weight: 700;
-            z-index: 2;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+
         }
 
-        #enter-button.show {
-            opacity: 1;
-            visibility: visible;
+        .container {
+
+            max-width: 1200px;
+
+            margin: 0 auto;
+
+            padding: 0 15px;
+
         }
 
-        /* Ses Uyarısı */
-        #sound-alert {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.9);
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-size: 14px;
-            display: none;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-            border: 1px solid #ff003c;
+        header {
+
+            background-color: #0066cc;
+
+            color: white;
+
+            padding: 20px 0;
+
+            text-align: center;
+
         }
-        .phone-button {
-  position: fixed;
-  bottom: 85px;
-  right: 25px;
-  width: 60px;
-  height: 60px;
-  background: #ff003c;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 5px 15px rgba(255,0,60,0.3);
-  transition: all 0.3s ease;
-  z-index: 9999999;
-}
 
-.phone-button:hover {
-  transform: scale(1.1) rotate(15deg);
-  box-shadow: 0 8px 20px rgba(255,0,60,0.5);
-}
+        .hero {
 
-.phone-icon {
-  width: 30px;
-  height: 30px;
-  fill: white;
-z-index: 9999999;
-}
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/api/placeholder/1200/600');
 
-/* Mobil Uyum */
-@media (max-width: 768px) {
-  .phone-button {
-    bottom: 65px;
-    right: 15px;
-    width: 55px;
-    height: 55px;
-    z-index: 9999999;
-  }
-  
-  .phone-icon {
-    width: 28px;
-    height: 28px;
-      z-index: 9999999;
-  }
-}
+            background-size: cover;
+
+            background-position: center;
+
+            color: white;
+
+            text-align: center;
+
+            padding: 100px 0;
+
+        }
+
+        .cta-buttons {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 20px;
+
+            margin-top: 30px;
+
+        }
+
+        .btn {
+
+            display: inline-block;
+
+            padding: 12px 25px;
+
+            background-color: #ff6f00;
+
+            color: white;
+
+            text-decoration: none;
+
+            border-radius: 5px;
+
+            transition: background-color 0.3s;
+
+        }
+
+        .btn:hover {
+
+            background-color: #ff8f00;
+
+        }
+
+        .services {
+
+            display: flex;
+
+            justify-content: space-around;
+
+            padding: 50px 0;
+
+            background-color: #f4f4f4;
+
+        }
+
+        .service-item {
+
+            text-align: center;
+
+            max-width: 250px;
+
+        }
+
+        .contact-info {
+
+            background-color: #0066cc;
+
+            color: white;
+
+            padding: 30px 0;
+
+            text-align: center;
+
+        }
+
     </style>
+
 </head>
+
 <body>
-    <a href="tel:+905457120615" class="phone-button">
-  <svg class="phone-icon" viewBox="0 0 24 24">
-    <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-  </svg>
-</a>
-    <!-- Ses Uyarısı -->
-    <div id="sound-alert">🎧 Ses deneyimi için sesinizi açın</div>
 
-    <!-- Video Konteynırı -->
-    <div id="video-container">
-        <iframe class="video-iframe" 
-                src="https://www.youtube.com/embed/r-xA9W34NOs?autoplay=1&mute=1&start=10&controls=0&loop=1&playlist=r-xA9W34NOs&modestbranding=1&rel=0&enablejsapi=1" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen
-                loading="eager"
-                poster="https://img.youtube.com/vi/r-xA9W34NOs/sddefault.jpg">
-        </iframe>
-    </div>
+    <header>
 
-    <!-- Kontrol Butonları -->
-    <div id="controls">
-        <button class="control-btn" id="skip-btn">▶️ Atlayarak Giriş</button>
-        <button class="control-btn" id="sound-btn">🔇 Sesi Aç</button>
-    </div>
+        <div class="container">
 
-    <!-- Ana Site Giriş Butonu -->
-    <a href="https://antalya-arac-servisi.github.io/yag-bakimi-periyodik-bakim" id="enter-button">🚗 SİTEYE GİRİŞ</a>
+            <h1>Car Servis - Antalya'nın Güvenilir Araç Bakım Merkezi</h1>
 
-    <script>
-        // YouTube Player API Entegrasyonu
-        let player;
-        let isSoundOn = false;
+        </div>
 
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player(document.querySelector('.video-iframe'), {
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
-                }
-            });
-        }
+    </header>
 
-        function onPlayerReady(event) {
-            event.target.mute();
-            event.target.playVideo();
-            event.target.seekTo(10);
-            showSoundAlert();
-        }
 
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.ENDED) {
-                showEnterButton();
-            }
-        }
 
-        // Kontrol Fonksiyonları
-        document.getElementById('skip-btn').addEventListener('click', () => {
-            player.stopVideo();
-            showEnterButton();
-        });
+    <section class="hero">
 
-        document.getElementById('sound-btn').addEventListener('click', toggleSound);
+        <div class="container">
 
-        function toggleSound() {
-            if(isSoundOn) {
-                player.mute();
-                isSoundOn = false;
-                document.getElementById('sound-btn').textContent = '🔇 Sesi Aç';
-            } else {
-                player.unMute();
-                isSoundOn = true;
-                document.getElementById('sound-btn').textContent = '🔊 Sesi Kapat';
-                tryPlayVideo(); // iOS için tekrar oynatma
-            }
-        }
+            <h2>Profesyonel Araç Bakım Hizmetleri</h2>
 
-        function showEnterButton() {
-            document.getElementById('enter-button').classList.add('show');
-            document.getElementById('controls').style.display = 'none';
-        }
+            <p>Kepez ve Tüm Antalya İlçelerinde 7/24 Hizmet</p>
 
-        function showSoundAlert() {
-            const alert = document.getElementById('sound-alert');
-            alert.style.display = 'block';
-            setTimeout(() => {
-                alert.style.display = 'none';
-            }, 5000);
-        }
+            
 
-        // Mobil Dokunmatik Destek
-        let touchCount = 0;
-        document.addEventListener('touchstart', handleTouch, { passive: true });
+            <div class="cta-buttons">
 
-        function handleTouch() {
-            touchCount++;
-            if(touchCount === 2) { // Çift dokunuşla ses aç
-                toggleSound();
-                touchCount = 0;
-            }
-            setTimeout(() => { touchCount = 0 }, 1000);
-        }
+                <a href="https://example.com/tanitim-video" target="_blank" class="btn">
 
-        // iOS için Video Oynatma
-        function tryPlayVideo() {
-            if(player && player.playVideo) {
-                player.playVideo().catch(error => {
-                    console.log('Oynatma hatası:', error);
-                });
-            }
-        }
+                    <i class="fas fa-play-circle"></i> Tanıtım Videosu
 
-        // YouTube API Yükleme
-        const youtubeScript = document.createElement('script');
-        youtubeScript.src = "https://www.youtube.com/iframe_api";
-        document.head.appendChild(youtubeScript);
-    </script>
+                </a>
+
+                <a href="https://antalya-arac-servisi.github.io/yag-bakimi-periyodik-bakim/" class="btn">
+
+                    <i class="fas fa-globe"></i> İşletme Sitemiz
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <section class="services">
+
+        <div class="service-item">
+
+            <i class="fas fa-oil-can fa-3x" style="color: #0066cc;"></i>
+
+            <h3>Yağ Bakımı</h3>
+
+            <p>Tüm araç markalarında profesyonel yağ değişimi ve motor bakımı</p>
+
+        </div>
+
+        <div class="service-item">
+
+            <i class="fas fa-laptop-medical fa-3x" style="color: #0066cc;"></i>
+
+            <h3>Bilgisayarlı Arıza Tespiti</h3>
+
+            <p>En son teknoloji cihazlarla hızlı ve güvenilir tanı</p>
+
+        </div>
+
+        <div class="service-item">
+
+            <i class="fas fa-wrench fa-3x" style="color: #0066cc;"></i>
+
+            <h3>Tam Araç Tamiri</h3>
+
+            <p>Motor, elektrik, fren sistemleri ve tüm mekanik onarımlar</p>
+
+        </div>
+
+    </section>
+
+
+
+    <section class="contact-info">
+
+        <div class="container">
+
+            <h2>İletişim Bilgilerimiz</h2>
+
+            <p>📍 Adres: Avni Tolunay, 07070 Kepez/Antalya</p>
+
+            <p>📞 Telefon: 0545 412 0615</p>
+
+            <p>🌐 Google Business: <a href="https://g.co/kgs/51UjStQ" style="color: white;">Car Servis Google Business</a></p>
+
+        </div>
+
+    </section>
+
+
+
+    <footer style="background-color: #333; color: white; text-align: center; padding: 20px;">
+
+        <p>© 2024 Car Servis - Tüm Antalya İlçelerinde Hizmet</p>
+
+        <p>Kepez, Muratpaşa, Konyaaltı, Döşemealtı ve daha fazlası...</p>
+
+    </footer>
+
 </body>
+
 </html>
+
