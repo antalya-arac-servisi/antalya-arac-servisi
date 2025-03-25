@@ -1,0 +1,37 @@
+        function showSoundAlert() {
+            const alert = document.getElementById('sound-alert');
+            alert.style.display = 'block';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        // Mobil Dokunmatik Destek
+        let touchCount = 0;
+        document.addEventListener('touchstart', handleTouch, { passive: true });
+
+        function handleTouch() {
+            touchCount++;
+            if(touchCount === 2) { // Çift dokunuşla ses aç
+                toggleSound();
+                touchCount = 0;
+            }
+            setTimeout(() => { touchCount = 0 }, 1000);
+        }
+
+        // iOS için Video Oynatma
+        function tryPlayVideo() {
+            if(player && player.playVideo) {
+                player.playVideo().catch(error => {
+                    console.log('Oynatma hatası:', error);
+                });
+            }
+        }
+
+        // YouTube API Yükleme
+        const youtubeScript = document.createElement('script');
+        youtubeScript.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(youtubeScript);
+    </script>
+</body>
+</html>
