@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Servis | Antalya Oto Tamir</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+        .header {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .contact {
+            text-align: center;
+            padding: 10px;
+        }
+        .contact a {
+            text-decoration: none;
+            color: #333;
+            font-size: 18px;
+            margin: 5px;
+            display: inline-block;
+        }
+        .blog-section {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Car Servis | Antalya Oto Tamir</h1>
+            <p>24 Saat Açık | Profesyonel Hizmet</p>
+        </header>
+        
+        <div class="card">
+            <h2>Şirket Bilgileri</h2>
+            <p><strong>Adres:</strong> Avni Tolunay, 07070 Kepez/Antalya</p>
+            <p><strong>Telefon:</strong> <a href="tel:+905457120615">0545 712 06 15</a></p>
+            <p><strong>Google Harita:</strong> <a href="https://www.google.com/maps/place/Antalya+Car+Servis+Oto+Tamir+Bak%C4%B1m+Merkezi/@36.9010282,30.6406548,19z/" target="_blank">Buraya Tıklayın</a></p>
+            <p><strong>YouTube:</strong> <a href="https://www.youtube.com/@antalya-car-servis" target="_blank">YouTube Kanalımız</a></p>
+        </div>
+        
+        <div class="blog-section">
+            <h2>Blog Yazıları</h2>
+            <div id="rss-feed"></div>
+        </div>
+    </div>
+
+    <script>
+        async function loadRSS() {
+            const url = 'https://your-blogspot-feed-url/rss.xml'; // Buraya Blogger RSS Feed URL'nizi ekleyin
+            const response = await fetch(url);
+            const text = await response.text();
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(text, 'text/xml');
+            const items = xml.querySelectorAll('item');
+            let html = '';
+            
+            items.forEach((item, index) => {
+                if (index < 5) { // Son 5 yazıyı göster
+                    let title = item.querySelector('title').textContent;
+                    let link = item.querySelector('link').textContent;
+                    let description = item.querySelector('description').textContent;
+                    html += `
+                        <div class="card">
+                            <h3><a href="${link}" target="_blank">${title}</a></h3>
+                            <p>${description.substring(0, 100)}...</p>
+                        </div>
+                    `;
+                }
+            });
+            document.getElementById('rss-feed').innerHTML = html;
+        }
+        loadRSS();
+    </script>
+</body>
+</html>
