@@ -356,230 +356,107 @@ z-index: 9999999;
 
 </a>
 
-    <!-- Ses Uyarısı -->
+   <!-- Ses Uyarısı -->
+<div id="sound-alert">🎧 Ses deneyimi için sesinizi açın</div>
 
-    <div id="sound-alert">🎧 Ses deneyimi için sesinizi açın</div>
+<!-- Video Konteynırı -->
+<div id="video-container">
+    <iframe class="video-iframe"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+    </iframe>
+</div>
 
+<!-- Kontrol Butonları -->
+<div id="controls">
+    <button class="control-btn" id="skip-btn">▶️ Atlayarak Giriş</button>
+    <button class="control-btn" id="sound-btn">🔇 Sesi Aç</button>
+</div>
 
+<!-- Ana Site Giriş Butonu -->
+<a href="https://antalya-arac-servisi.github.io/yag-bakimi-periyodik-bakim" id="enter-button">🚗 SİTEYE GİRİŞ</a>
 
-    <!-- Video Konteynırı -->
+<script>
+    // Video Listesi (Normal ve Shorts videolarınızı buraya ekleyin)
+    const videoList = [
+        "r-xA9W34NOs",  // Normal video
+        "9FCPxySm3k0",      // Short video
+        "3P4S_wl6fhU",      // Normal video
+        "0bfbOC55U3Q"      // Short video
+    ];
 
-    <div id="video-container">
+    let currentVideoIndex = 0;
+    let player;
+    let isSoundOn = false;
 
-        <iframe class="video-iframe" 
+    function loadVideo(videoId) {
+        document.querySelector('.video-iframe').src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=0&modestbranding=1&rel=0&enablejsapi=1`;
+    }
 
-                src="https://www.youtube.com/embed/videoseries?list=PLcSIxipGfOriXPpqp81UQJen--oj1htw6?autoplay=1&mute=1&start=10&controls=0&loop=1&playlist=PLcSIxipGfOriXPpqp81UQJen--oj1htw6&modestbranding=1&rel=0&enablejsapi=1" 
-
-                frameborder="0" 
-
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-
-                allowfullscreen
-
-                loading="eager"
-
-                poster="https://img.youtube.com/vi/r-xA9W34NOs/sddefault.jpg">
-
-        </iframe>
-
-    </div>
-
-
-
-    <!-- Kontrol Butonları -->
-
-    <div id="controls">
-
-        <button class="control-btn" id="skip-btn">▶️ Atlayarak Giriş</button>
-
-        <button class="control-btn" id="sound-btn">🔇 Sesi Aç</button>
-
-    </div>
-
-
-
-    <!-- Ana Site Giriş Butonu -->
-
-    <a href="https://antalya-arac-servisi.github.io/yag-bakimi-periyodik-bakim" id="enter-button">🚗 SİTEYE GİRİŞ</a>
-
-
-
-    <script>
-
-        // YouTube Player API Entegrasyonu
-
-        let player;
-
-        let isSoundOn = false;
-
-
-
-        function onYouTubeIframeAPIReady() {
-
-            player = new YT.Player(document.querySelector('.video-iframe'), {
-
-                events: {
-
-                    'onReady': onPlayerReady,
-
-                    'onStateChange': onPlayerStateChange
-
-                }
-
-            });
-
-        }
-
-
-
-        function onPlayerReady(event) {
-
-            event.target.mute();
-
-            event.target.playVideo();
-
-            event.target.seekTo(10);
-
-            showSoundAlert();
-
-        }
-
-
-
-        function onPlayerStateChange(event) {
-
-            if (event.data === YT.PlayerState.ENDED) {
-
-                showEnterButton();
-
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player(document.querySelector('.video-iframe'), {
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange
             }
-
-        }
-
-
-
-        // Kontrol Fonksiyonları
-
-        document.getElementById('skip-btn').addEventListener('click', () => {
-
-            player.stopVideo();
-
-            showEnterButton();
-
         });
+    }
 
+    function onPlayerReady(event) {
+        event.target.mute();
+        event.target.playVideo();
+        showSoundAlert();
+    }
 
-
-        document.getElementById('sound-btn').addEventListener('click', toggleSound);
-
-
-
-        function toggleSound() {
-
-            if(isSoundOn) {
-
-                player.mute();
-
-                isSoundOn = false;
-
-                document.getElementById('sound-btn').textContent = '🔇 Sesi Aç';
-
+    function onPlayerStateChange(event) {
+        if (event.data === YT.PlayerState.ENDED) {
+            currentVideoIndex++;
+            if (currentVideoIndex < videoList.length) {
+                loadVideo(videoList[currentVideoIndex]);
             } else {
-
-                player.unMute();
-
-                isSoundOn = true;
-
-                document.getElementById('sound-btn').textContent = '🔊 Sesi Kapat';
-
-                tryPlayVideo(); // iOS için tekrar oynatma
-
+                showEnterButton();
             }
-
         }
+    }
 
+    document.getElementById('skip-btn').addEventListener('click', () => {
+        showEnterButton();
+    });
 
-
-        function showEnterButton() {
-
-            document.getElementById('enter-button').classList.add('show');
-
-            document.getElementById('controls').style.display = 'none';
-
+    document.getElementById('sound-btn').addEventListener('click', () => {
+        if (isSoundOn) {
+            player.mute();
+            isSoundOn = false;
+            document.getElementById('sound-btn').textContent = '🔇 Sesi Aç';
+        } else {
+            player.unMute();
+            isSoundOn = true;
+            document.getElementById('sound-btn').textContent = '🔊 Sesi Kapat';
         }
+    });
 
+    function showEnterButton() {
+        document.getElementById('enter-button').classList.add('show');
+        document.getElementById('controls').style.display = 'none';
+    }
 
+    function showSoundAlert() {
+        const alert = document.getElementById('sound-alert');
+        alert.style.display = 'block';
+        setTimeout(() => {
+            alert.style.display = 'none';
+        }, 5000);
+    }
 
-        function showSoundAlert() {
+    // İlk videoyu yükle
+    loadVideo(videoList[currentVideoIndex]);
 
-            const alert = document.getElementById('sound-alert');
-
-            alert.style.display = 'block';
-
-            setTimeout(() => {
-
-                alert.style.display = 'none';
-
-            }, 5000);
-
-        }
-
-
-
-        // Mobil Dokunmatik Destek
-
-        let touchCount = 0;
-
-        document.addEventListener('touchstart', handleTouch, { passive: true });
-
-
-
-        function handleTouch() {
-
-            touchCount++;
-
-            if(touchCount === 2) { // Çift dokunuşla ses aç
-
-                toggleSound();
-
-                touchCount = 0;
-
-            }
-
-            setTimeout(() => { touchCount = 0 }, 1000);
-
-        }
-
-
-
-        // iOS için Video Oynatma
-
-        function tryPlayVideo() {
-
-            if(player && player.playVideo) {
-
-                player.playVideo().catch(error => {
-
-                    console.log('Oynatma hatası:', error);
-
-                });
-
-            }
-
-        }
-
-
-
-        // YouTube API Yükleme
-
-        const youtubeScript = document.createElement('script');
-
-        youtubeScript.src = "https://www.youtube.com/iframe_api";
-
-        document.head.appendChild(youtubeScript);
-
-    </script>
-
+    // YouTube API'yi yükle
+    const youtubeScript = document.createElement('script');
+    youtubeScript.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(youtubeScript);
+</script>
 </body>
 
 </html>
