@@ -1,63 +1,12 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Yazıları</title>
+    <!-- Mevcut stil ve meta tag'leri aynı kalacak -->
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .blog-container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-        .blog-post {
-            border-bottom: 1px solid #ddd;
-            padding: 15px 0;
-        }
-        .blog-post:last-child {
-            border-bottom: none;
-        }
-        .post-title a {
-            text-decoration: none;
-            color: #333;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .post-title a:hover {
-            color: #007BFF;
-        }
-        .post-date {
-            font-size: 14px;
-            color: #777;
-        }
-        .post-excerpt {
-            font-size: 16px;
-            color: #555;
-            margin: 10px 0;
-        }
-        .read-more {
-            display: inline-block;
-            text-decoration: none;
-            color: white;
-            background: #007BFF;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
-        .read-more:hover {
-            background: #0056b3;
-        }
+        /* Mevcut CSS kodunuz aynı */
     </style>
 </head>
 <body>
-
     <div class="blog-container">
         <h1>Son Blog Yazıları</h1>
         <div id="blog-posts">
@@ -67,72 +16,65 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const feedburnerUrl = 'https://feeds.feedburner.com/antalya-oto-tamircisi/VXnM6gtoSRp'; // FeedBurner RSS URL'nizi buraya ekleyin
-            const maxResults = 5; // Gösterilecek yazı sayısı
+            const feedUrl = "https://feeds.feedburner.com/antalya-oto-tamircisi/VXnM6gtoSRp";
             const blogContainer = document.getElementById('blog-posts');
+            
+            // 1. Yeni CORS Proxy Kullanımı
+            const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(feedUrl);
 
-            // CORS kısıtlamalarını aşmak için güvenilir bir proxy kullan
-            const proxyUrl = 'https://corsproxy.io/?';
-            const encodedFeedUrl = encodeURIComponent(feedburnerUrl);
-
-            fetch(proxyUrl + encodedFeedUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP hata! Durum: ${response.status}`);
-                    }
-                    return response.text();
-                })
-                .then(str => {
+            fetch(proxyUrl)
+                .then(response => response.json())
+                .then(data => {
                     const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(str, 'text/xml');
-                    const entries = xmlDoc.getElementsByTagName('item');
-
-                    if (entries.length === 0) {
-                        throw new Error('Hiç blog yazısı bulunamadı!');
+                    const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+                    
+                    // 2. Doğru XML Etiketlerini Kullanma
+                    const items = xmlDoc.querySelectorAll("item");
+                    
+                    if (items.length === 0) {
+                        blogContainer.innerHTML = "<p>Henüz yayınlanmış bir yazı bulunamadı.</p>";
+                        return;
                     }
 
-                    let postsHtml = '';
-
-                    for (let i = 0; i < Math.min(entries.length, maxResults); i++) {
-                        const title = entries[i].getElementsByTagName('title')[0]?.textContent || 'Başlıksız';
-                        const postUrl = entries[i].getElementsByTagName('link')[0]?.textContent || '#';
+                    let html = "";
+                    items.forEach((item, index) => {
+                        if (index >= 5) return; // İlk 5 yazıyı göster
                         
-                        const published = new Date(entries[i].getElementsByTagName('pubDate')[0]?.textContent || Date.now());
-                        const formattedDate = published.toLocaleDateString('tr-TR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
+                        // 3. Tarih Formatını Düzeltme
+                        const pubDate = new Date(item.querySelector("pubDate").textContent);
+                        const formattedDate = pubDate.toLocaleDateString("tr-TR", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric"
                         });
                         
-                        let content = entries[i].getElementsByTagName('description')[0]?.textContent || 'İçerik bulunamadı';
+                        // 4. HTML İçeriğini Temizleme
+                        const description = item.querySelector("description").textContent;
+                        const tempDiv = document.createElement("div");
+                        tempDiv.innerHTML = description;
+                        const cleanText = tempDiv.textContent.substring(0, 150) + "...";
 
-                        // HTML etiketlerini kaldır ve metni kısalt
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = content;
-                        const textContent = tempDiv.textContent || tempDiv.innerText || '';
-                        const excerpt = textContent.length > 150 ? textContent.substring(0, 150) + '...' : textContent;
-
-                        // HTML ekleme
-                        postsHtml += `
+                        html += `
                             <div class="blog-post">
-                                <h2 class="post-title"><a href="${postUrl}" target="_blank">${title}</a></h2>
+                                <h2 class="post-title">
+                                    <a href="${item.querySelector("link").textContent}" target="_blank">
+                                        ${item.querySelector("title").textContent}
+                                    </a>
+                                </h2>
                                 <p class="post-date">${formattedDate}</p>
-                                <div class="post-excerpt">${excerpt}</div>
-                                <a href="${postUrl}" class="read-more" target="_blank">Devamını Oku</a>
+                                <div class="post-excerpt">${cleanText}</div>
+                                <a href="${item.querySelector("link").textContent}" class="read-more" target="_blank">Devamını Oku</a>
                             </div>
                         `;
-                    }
+                    });
 
-                    blogContainer.innerHTML = postsHtml;
+                    blogContainer.innerHTML = html;
                 })
                 .catch(error => {
-                    console.error('FeedBurner RSS çekilirken hata oluştu:', error);
-                    if (blogContainer) {
-                        blogContainer.innerHTML = '<p>Blog yazıları yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>';
-                    }
+                    console.error("Hata:", error);
+                    blogContainer.innerHTML = "<p>Yazılar yüklenirken bir hata oluştu.</p>";
                 });
         });
     </script>
-
 </body>
 </html>
