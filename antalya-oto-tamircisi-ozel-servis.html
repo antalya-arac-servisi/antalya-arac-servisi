@@ -1,93 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch and Parse RSS Feeds with CORS Proxy</title>
+    <title>Blog Yazıları</title>
     <style>
-        .feed-item {
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .blog-container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .blog-post {
             border-bottom: 1px solid #ddd;
-            padding: 10px 0;
+            padding: 15px 0;
         }
-
-        .feed-item h3 {
-            margin: 0;
-            font-size: 1.2em;
+        .blog-post:last-child {
+            border-bottom: none;
         }
-
-        .feed-item p {
-            color: #666;
-            font-size: 0.9em;
+        .post-title a {
+            text-decoration: none;
+            color: #333;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .post-title a:hover {
+            color: #007BFF;
+        }
+        .post-date {
+            font-size: 14px;
+            color: #777;
+        }
+        .post-excerpt {
+            font-size: 16px;
+            color: #555;
+            margin: 10px 0;
+        }
+        .read-more {
+            display: inline-block;
+            text-decoration: none;
+            color: white;
+            background: #007BFF;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .read-more:hover {
+            background: #0056b3;
         }
     </style>
 </head>
-
 <body>
-    <div id="feed-container"></div>
+
+    <div class="blog-container">
+        <h1>Son Blog Yazıları</h1>
+        <div id="blog-posts">
+            <p>Yazılar yükleniyor...</p>
+        </div>
+    </div>
 
     <script>
-        // Function to fetch RSS feed using Fetch API with a CORS Proxy
-        async function fetchRSSWithProxy(proxyUrl, rssUrl) {
-            try {
-                const response = await fetch(`${proxyUrl}${encodeURIComponent(rssUrl)}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-                return data.contents; // Access the RSS data
-            } catch (error) {
-                console.error('Error fetching RSS feed through proxy:', error);
-            }
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+            const feedburnerUrl = 'https://feeds.feedburner.com/antalya-oto-tamircisi/VXnM6gtoSRp'; // FeedBurner RSS URL'nizi buraya ekleyin
+            const maxResults = 5; // Gösterilecek yazı sayısı
+            const blogContainer = document.getElementById('blog-posts');
 
-        // Function to parse RSS feed using DOMParser
-        function parseRSS(rssText) {
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(rssText, 'application/xml');
-            return xmlDoc;
-        }
+            // CORS kısıtlamalarını aşmak için güvenilir bir proxy kullan
+            const proxyUrl = 'https://corsproxy.io/?';
+            const encodedFeedUrl = encodeURIComponent(feedburnerUrl);
 
-        // Function to extract items from the parsed XML
-        function extractFeedItems(xmlDoc) {
-            const items = xmlDoc.getElementsByTagName('item');
-            const feedItems = [];
+            fetch(proxyUrl + encodedFeedUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP hata! Durum: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(str => {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(str, 'text/xml');
+                    const entries = xmlDoc.getElementsByTagName('item');
 
-            for (let i = 0; i < items.length; i++) {
-                const title = items[i].getElementsByTagName('title')[0].textContent;
-                const link = items[i].getElementsByTagName('link')[0].textContent;
-                const pubDate = items[i].getElementsByTagName('pubDate')[0]?.textContent;
-                feedItems.push({ title, link, pubDate });
-            }
+                    if (entries.length === 0) {
+                        throw new Error('Hiç blog yazısı bulunamadı!');
+                    }
 
-            return feedItems;
-        }
+                    let postsHtml = '';
 
-        // Function to display feed items in HTML
-        function displayFeedItems(feedItems) {
-            const container = document.getElementById('feed-container');
-            container.innerHTML = feedItems
-                .map(
-                    (item) => `
-                    <div class="feed-item">
-                        <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
-                        <p>${item.pubDate}</p>
-                    </div>
-                `
-                )
-                .join('');
-        }
+                    for (let i = 0; i < Math.min(entries.length, maxResults); i++) {
+                        const title = entries[i].getElementsByTagName('title')[0]?.textContent || 'Başlıksız';
+                        const postUrl = entries[i].getElementsByTagName('link')[0]?.textContent || '#';
+                        
+                        const published = new Date(entries[i].getElementsByTagName('pubDate')[0]?.textContent || Date.now());
+                        const formattedDate = published.toLocaleDateString('tr-TR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                        
+                        let content = entries[i].getElementsByTagName('description')[0]?.textContent || 'İçerik bulunamadı';
 
-        // Fetch, parse, and display RSS feed
-        const proxyUrl = 'https://api.allorigins.win/get?url='; // Public CORS proxy
-        const rssUrl = '/feeds/posts/default?alt=json-in-script&callback=displayFeedItems'; // 
-        fetchRSSWithProxy(proxyUrl, rssUrl).then((rssText) => {
-            const xmlDoc = parseRSS(rssText);
-            const feedItems = extractFeedItems(xmlDoc);
-            displayFeedItems(feedItems);
+                        // HTML etiketlerini kaldır ve metni kısalt
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = content;
+                        const textContent = tempDiv.textContent || tempDiv.innerText || '';
+                        const excerpt = textContent.length > 150 ? textContent.substring(0, 150) + '...' : textContent;
+
+                        // HTML ekleme
+                        postsHtml += `
+                            <div class="blog-post">
+                                <h2 class="post-title"><a href="${postUrl}" target="_blank">${title}</a></h2>
+                                <p class="post-date">${formattedDate}</p>
+                                <div class="post-excerpt">${excerpt}</div>
+                                <a href="${postUrl}" class="read-more" target="_blank">Devamını Oku</a>
+                            </div>
+                        `;
+                    }
+
+                    blogContainer.innerHTML = postsHtml;
+                })
+                .catch(error => {
+                    console.error('FeedBurner RSS çekilirken hata oluştu:', error);
+                    if (blogContainer) {
+                        blogContainer.innerHTML = '<p>Blog yazıları yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>';
+                    }
+                });
         });
     </script>
-</body>
 
+</body>
 </html>
