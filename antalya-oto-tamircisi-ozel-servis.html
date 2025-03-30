@@ -30,7 +30,7 @@
                 let html = '';
                 
                 posts.forEach((post, index) => {
-                    if (index >= 5) return; // İlk 5 yazıyı göster
+                    if (index >= 20) return; // İlk 5 yazıyı göster
                     
                     const title = post.querySelector("title").textContent;
                     const link = post.querySelector("link").textContent;
