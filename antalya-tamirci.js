@@ -1,6 +1,6 @@
 // Blogger XML feed'inden yazıları GitHub sitenize eklemek için script
 document.addEventListener('DOMContentLoaded', function() {
-  const bloggerFeedUrl = 'https://www.blogger.com/feeds/YOUR_BLOG_ID/posts/default'; // Blog ID'nizi buraya ekleyin
+  const bloggerFeedUrl = 'https://www.blogger.com/feeds/5762198629464425500/posts/default'; // Blog ID'nizi buraya ekleyin
   const maxResults = 5; // Gösterilecek yazı sayısı
   const blogContainer = document.getElementById('blog-posts');
   
