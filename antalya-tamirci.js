@@ -1,30 +1,38 @@
-// Blogger XML feed'inden yazıları GitHub sitenize eklemek için script
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const bloggerFeedUrl = 'https://www.blogger.com/feeds/5762198629464425500/posts/default'; // Blog ID'nizi buraya ekleyin
   const maxResults = 5; // Gösterilecek yazı sayısı
   const blogContainer = document.getElementById('blog-posts');
   
-  // CORS kısıtlamalarını aşmak için proxy kullanımı
-  const proxyUrl = 'https://api.allorigins.win/get?url=';
-  const encodedFeedUrl = encodeURIComponent(bloggerFeedUrl + '?max-results=' + maxResults);
-  
-  // Feed'i çekme ve işleme
+  // CORS kısıtlamalarını aşmak için güvenilir bir proxy kullan
+  const proxyUrl = 'https://corsproxy.io/?';
+  const encodedFeedUrl = encodeURIComponent(`${bloggerFeedUrl}?max-results=${maxResults}`);
+
   fetch(proxyUrl + encodedFeedUrl)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP hata! Durum: ${response.status}`);
+      }
+      return response.json();
+    })
     .then(data => {
+      if (!data.contents) {
+        throw new Error('Geçersiz veri alındı, içerik boş!');
+      }
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(data.contents, 'text/xml');
       const entries = xmlDoc.getElementsByTagName('entry');
-      
+
+      if (entries.length === 0) {
+        throw new Error('Hiç blog yazısı bulunamadı!');
+      }
+
       let postsHtml = '';
-      
+
       for (let i = 0; i < entries.length; i++) {
-        // Yazı başlığı
-        const title = entries[i].getElementsByTagName('title')[0].textContent;
+        const title = entries[i].getElementsByTagName('title')[0]?.textContent || 'Başlıksız';
         
-        // Yazı linki
-        const links = entries[i].getElementsByTagName('link');
         let postUrl = '';
+        const links = entries[i].getElementsByTagName('link');
         for (let j = 0; j < links.length; j++) {
           if (links[j].getAttribute('rel') === 'alternate') {
             postUrl = links[j].getAttribute('href');
@@ -32,29 +40,24 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         }
         
-        // Yayın tarihi
-        const published = new Date(entries[i].getElementsByTagName('published')[0].textContent);
+        const published = new Date(entries[i].getElementsByTagName('published')[0]?.textContent || Date.now());
         const formattedDate = published.toLocaleDateString('tr-TR', {
           year: 'numeric',
           month: 'long',
           day: 'numeric'
         });
         
-        // Yazı içeriği (özet)
-        let content = '';
-        if (entries[i].getElementsByTagName('content').length > 0) {
-          content = entries[i].getElementsByTagName('content')[0].textContent;
-        } else if (entries[i].getElementsByTagName('summary').length > 0) {
-          content = entries[i].getElementsByTagName('summary')[0].textContent;
-        }
-        
-        // İçerikten HTML etiketlerini kaldırma ve kısaltma
+        let content = entries[i].getElementsByTagName('content')[0]?.textContent ||
+                      entries[i].getElementsByTagName('summary')[0]?.textContent ||
+                      'İçerik bulunamadı';
+
+        // HTML etiketlerini kaldır ve metni kısalt
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = content;
-        const textContent = tempDiv.textContent || tempDiv.innerText;
-        const excerpt = textContent.substring(0, 150) + '...';
-        
-        // HTML oluşturma
+        const textContent = tempDiv.textContent || tempDiv.innerText || '';
+        const excerpt = textContent.length > 150 ? textContent.substring(0, 150) + '...' : textContent;
+
+        // HTML ekleme
         postsHtml += `
           <div class="blog-post">
             <h2 class="post-title"><a href="${postUrl}" target="_blank">${title}</a></h2>
@@ -64,13 +67,8 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
         `;
       }
-      
-      // İçeriği sayfaya ekleme
-      if (blogContainer) {
-        blogContainer.innerHTML = postsHtml;
-      } else {
-        console.error('Blog posts container not found!');
-      }
+
+      blogContainer.innerHTML = postsHtml;
     })
     .catch(error => {
       console.error('Blogger feed çekilirken hata oluştu:', error);
