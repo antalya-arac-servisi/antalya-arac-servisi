@@ -1,80 +1,57 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <!-- Mevcut stil ve meta tag'leri aynı kalacak -->
+    <meta charset="UTF-8">
+    <title>Blog Yazılarım</title>
     <style>
-        /* Mevcut CSS kodunuz aynı */
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 15px; }
+        .post { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .post-title { color: #1a0dab; margin: 0; }
+        .post-date { color: #666; font-size: 0.9em; }
+        .post-content { color: #333; margin: 10px 0; }
     </style>
 </head>
 <body>
-    <div class="blog-container">
-        <h1>Son Blog Yazıları</h1>
-        <div id="blog-posts">
-            <p>Yazılar yükleniyor...</p>
-        </div>
-    </div>
+    <h1>Son Yazılar</h1>
+    <div id="posts"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const feedUrl = "https://feeds.feedburner.com/antalya-oto-tamircisi/VXnM6gtoSRp";
-            const blogContainer = document.getElementById('blog-posts');
-            
-            // 1. Yeni CORS Proxy Kullanımı
-            const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(feedUrl);
+        // Blogger RSS Feed URL'nizi buraya yapıştırın
+        const RSS_URL = 'https://antalya-oto-tamircisi.blogspot.com/feeds/posts/default?alt=rss';
 
-            fetch(proxyUrl)
-                .then(response => response.json())
-                .then(data => {
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+        // GitHub Pages için CORS proxy'si (Ücretsiz ve çalışıyor)
+        const PROXY = 'https://api.allorigins.win/raw?url=';
+
+        fetch(PROXY + encodeURIComponent(RSS_URL))
+            .then(response => response.text())
+            .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+            .then(data => {
+                const posts = data.querySelectorAll("item");
+                let html = '';
+                
+                posts.forEach((post, index) => {
+                    if (index >= 5) return; // İlk 5 yazıyı göster
                     
-                    // 2. Doğru XML Etiketlerini Kullanma
-                    const items = xmlDoc.querySelectorAll("item");
-                    
-                    if (items.length === 0) {
-                        blogContainer.innerHTML = "<p>Henüz yayınlanmış bir yazı bulunamadı.</p>";
-                        return;
-                    }
+                    const title = post.querySelector("title").textContent;
+                    const link = post.querySelector("link").textContent;
+                    const date = new Date(post.querySelector("pubDate").textContent).toLocaleDateString('tr-TR');
+                    const content = post.querySelector("description").textContent;
 
-                    let html = "";
-                    items.forEach((item, index) => {
-                        if (index >= 5) return; // İlk 5 yazıyı göster
-                        
-                        // 3. Tarih Formatını Düzeltme
-                        const pubDate = new Date(item.querySelector("pubDate").textContent);
-                        const formattedDate = pubDate.toLocaleDateString("tr-TR", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric"
-                        });
-                        
-                        // 4. HTML İçeriğini Temizleme
-                        const description = item.querySelector("description").textContent;
-                        const tempDiv = document.createElement("div");
-                        tempDiv.innerHTML = description;
-                        const cleanText = tempDiv.textContent.substring(0, 150) + "...";
-
-                        html += `
-                            <div class="blog-post">
-                                <h2 class="post-title">
-                                    <a href="${item.querySelector("link").textContent}" target="_blank">
-                                        ${item.querySelector("title").textContent}
-                                    </a>
-                                </h2>
-                                <p class="post-date">${formattedDate}</p>
-                                <div class="post-excerpt">${cleanText}</div>
-                                <a href="${item.querySelector("link").textContent}" class="read-more" target="_blank">Devamını Oku</a>
-                            </div>
-                        `;
-                    });
-
-                    blogContainer.innerHTML = html;
-                })
-                .catch(error => {
-                    console.error("Hata:", error);
-                    blogContainer.innerHTML = "<p>Yazılar yüklenirken bir hata oluştu.</p>";
+                    html += `
+                        <div class="post">
+                            <h2 class="post-title"><a href="${link}" target="_blank">${title}</a></h2>
+                            <p class="post-date">${date}</p>
+                            <div class="post-content">${content.substring(0, 200)}...</div>
+                        </div>
+                    `;
                 });
-        });
+
+                document.getElementById('posts').innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                document.getElementById('posts').innerHTML = '<p>Yazılar yüklenemedi. Lütfen daha sonra tekrar deneyin.</p>';
+            });
     </script>
 </body>
 </html>
