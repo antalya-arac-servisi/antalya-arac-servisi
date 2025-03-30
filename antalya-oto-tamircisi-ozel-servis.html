@@ -81,7 +81,7 @@
 
         // Fetch, parse, and display RSS feed
         const proxyUrl = 'https://api.allorigins.win/get?url='; // Public CORS proxy
-        const rssUrl = 'https://antalya-oto-tamircisi.blogspot.com/atom.xml'; // BBC News RSS Feed
+        const rssUrl = '/feeds/posts/default?alt=json-in-script&callback=displayFeedItems'; // 
         fetchRSSWithProxy(proxyUrl, rssUrl).then((rssText) => {
             const xmlDoc = parseRSS(rssText);
             const feedItems = extractFeedItems(xmlDoc);
