@@ -1,41 +1,93 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog Yazılarım</title>
-  <style>
-    .blog-post {
-      margin-bottom: 30px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #eee;
-    }
-    .post-title {
-      margin-bottom: 5px;
-    }
-    .post-date {
-      color: #666;
-      font-size: 0.9em;
-      margin-bottom: 10px;
-    }
-    .post-excerpt {
-      margin-bottom: 10px;
-    }
-    .read-more {
-      display: inline-block;
-      margin-top: 10px;
-      text-decoration: none;
-      color: #0366d6;
-    }
-  </style>
-</head>
-<body>
-  <h1>Blog Yazılarım</h1>
-  
-  <div id="blog-posts">
-    <p>Yazılar yükleniyor...</p>
-  </div>
+<html lang="en">
 
-  <script src="https://antalya-arac-servisi.github.io/antalya-arac-servisi/antalya-tamirci.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch and Parse RSS Feeds with CORS Proxy</title>
+    <style>
+        .feed-item {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+
+        .feed-item h3 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        .feed-item p {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="feed-container"></div>
+
+    <script>
+        // Function to fetch RSS feed using Fetch API with a CORS Proxy
+        async function fetchRSSWithProxy(proxyUrl, rssUrl) {
+            try {
+                const response = await fetch(`${proxyUrl}${encodeURIComponent(rssUrl)}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                return data.contents; // Access the RSS data
+            } catch (error) {
+                console.error('Error fetching RSS feed through proxy:', error);
+            }
+        }
+
+        // Function to parse RSS feed using DOMParser
+        function parseRSS(rssText) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(rssText, 'application/xml');
+            return xmlDoc;
+        }
+
+        // Function to extract items from the parsed XML
+        function extractFeedItems(xmlDoc) {
+            const items = xmlDoc.getElementsByTagName('item');
+            const feedItems = [];
+
+            for (let i = 0; i < items.length; i++) {
+                const title = items[i].getElementsByTagName('title')[0].textContent;
+                const link = items[i].getElementsByTagName('link')[0].textContent;
+                const pubDate = items[i].getElementsByTagName('pubDate')[0]?.textContent;
+                feedItems.push({ title, link, pubDate });
+            }
+
+            return feedItems;
+        }
+
+        // Function to display feed items in HTML
+        function displayFeedItems(feedItems) {
+            const container = document.getElementById('feed-container');
+            container.innerHTML = feedItems
+                .map(
+                    (item) => `
+                    <div class="feed-item">
+                        <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
+                        <p>${item.pubDate}</p>
+                    </div>
+                `
+                )
+                .join('');
+        }
+
+        // Fetch, parse, and display RSS feed
+        const proxyUrl = 'https://api.allorigins.win/get?url='; // Public CORS proxy
+        const rssUrl = 'https://antalya-oto-tamircisi.blogspot.com/atom.xml'; // BBC News RSS Feed
+        fetchRSSWithProxy(proxyUrl, rssUrl).then((rssText) => {
+            const xmlDoc = parseRSS(rssText);
+            const feedItems = extractFeedItems(xmlDoc);
+            displayFeedItems(feedItems);
+        });
+    </script>
 </body>
+
 </html>
